@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>수인분당선 지하철 애니메이션</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <span class="logo-icon">🚇</span>
+                <span class="logo-text">수인·분당선</span>
+            </div>
+            <nav>
+                <a href="#" class="nav-link active">노선도</a>
+                <a href="#" class="nav-link">시간표</a>
+                <a href="#" class="nav-link">운행정보</a>
+                <a href="#" class="nav-link">역정보</a>
+            </nav>
+            <div class="header-info">
+                <span class="status-dot"></span>
+                <span>실시간 운행중</span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="map-container">
+            <div class="map-wrapper">
+                <img src="map.png" alt="수인분당선 노선도" class="map-image">
+                
+                <!-- 6대의 지하철 -->
+                <div class="train train-1">
+                    <img src="train.png" alt="지하철">
+                </div>
+                <div class="train train-2">
+                    <img src="train.png" alt="지하철">
+                </div>
+                <div class="train train-3">
+                    <img src="train.png" alt="지하철">
+                </div>
+                <div class="train train-4">
+                    <img src="train.png" alt="지하철">
+                </div>
+                <div class="train train-5">
+                    <img src="train.png" alt="지하철">
+                </div>
+                <div class="train train-6">
+                    <img src="train.png" alt="지하철">
+                </div>
+            </div>
+            
+            <div class="info-panel">
+                <h3>운행 정보</h3>
+                <div class="info-item">
+                    <span class="info-label">총 역 수</span>
+                    <span class="info-value">63개역</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">운행 구간</span>
+                    <span class="info-value">왕십리 ↔ 인천</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">운행 열차</span>
+                    <span class="info-value">6대 운행중</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">노선 색상</span>
+                    <span class="info-value color-badge">옐로우</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>수인·분당선</h4>
+                <p>서울 왕십리역부터 인천역까지<br>수도권을 연결하는 도시철도</p>
+            </div>
+            <div class="footer-section">
+                <h4>연계 노선</h4>
+                <p>1호선 · 2호선 · 3호선 · 4호선<br>신분당선 · 경강선 · GTX-A</p>
+            </div>
+            <div class="footer-section">
+                <h4>고객센터</h4>
+                <p>1544-7788<br>운영시간: 05:00 ~ 24:00</p>
+            </div>
+            <div class="footer-bottom">
+                <span>© 2024 수인분당선 애니메이션 데모</span>
+                <span>CSS Animation Only</span>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
