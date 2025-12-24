@@ -7,10 +7,13 @@
 
 :root {
     --primary: #F5A623;
+    --primary-dark: #E09612;
+    --primary-light: #FFD93D;
     --bg-dark: #1a1a2e;
     --bg-darker: #16162a;
     --text-light: #ffffff;
     --text-muted: #a0a0b0;
+    --accent: #00d4aa;
 }
 
 body {
@@ -20,28 +23,108 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    overflow-x: hidden;
 }
 
 /* Header */
 header {
-    background: var(--bg-darker);
+    background: linear-gradient(180deg, var(--bg-darker) 0%, transparent 100%);
     padding: 1rem 2rem;
-    text-align: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+}
+
+.header-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.logo-icon {
+    font-size: 2rem;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
 }
 
 .logo-text {
     font-size: 1.5rem;
     font-weight: 900;
-    color: var(--primary);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
-/* Main */
+nav {
+    display: flex;
+    gap: 2rem;
+}
+
+.nav-link {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: var(--text-light);
+    background: rgba(245, 166, 35, 0.2);
+}
+
+.header-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: blink 1.5s ease-in-out infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+/* Main Content */
 main {
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2rem;
+    padding: 100px 2rem 2rem;
+}
+
+.map-container {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+    max-width: 1400px;
 }
 
 .map-wrapper {
@@ -49,16 +132,21 @@ main {
     background: #ffffff;
     border-radius: 20px;
     padding: 20px;
-    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
+    box-shadow: 
+        0 25px 80px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+    overflow: hidden;
 }
 
 .map-image {
     display: block;
     width: 800px;
     height: auto;
+    position: relative;
+    z-index: 1;
 }
 
-/* Train - 1대만 */
+/* Train Styles */
 .train {
     position: absolute;
     width: 35px;
@@ -73,310 +161,442 @@ main {
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
-.train-1 {
-    animation: trainRoute 90s linear infinite;
-}
+/* 6대 열차 - 15초 간격 */
+.train-1 { animation: trainRoute 90s linear infinite; }
+.train-2 { animation: trainRoute 90s linear infinite; animation-delay: -15s; }
+.train-3 { animation: trainRoute 90s linear infinite; animation-delay: -30s; }
+.train-4 { animation: trainRoute 90s linear infinite; animation-delay: -45s; }
+.train-5 { animation: trainRoute 90s linear infinite; animation-delay: -60s; }
+.train-6 { animation: trainRoute 90s linear infinite; animation-delay: -75s; }
 
 /*
    ========================================================================
-   수인분당선 경로 - 1행 수정 버전
+   수인분당선 경로
    ========================================================================
    
-   1행 순서 (top: 114px, 왕십리/서울숲 고정 후 +25.5px 간격):
-   왕십리(116) → 서울숲(145) → 압구정로데오(170.5) → 강남구청(196) → 
-   선정릉(221.5) → 선릉(247) → 한티(272.5) → 도곡(298) → 구룡(323.5) → 
-   개포동(349) → 대모산입구(374.5) → 수서(400) → 복정(425.5) → 가천대(451) → 
-   태평(476.5) → 모란(502) → 야탑(527.5) → 이매(553) → 서현(578.5) → 
-   수내(604) → 정자(629.5) → 미금(655) → 오리(680.5) → 죽전(706) → 보정(731.5)
-   
-   → 곡선 후 2행 (구성 → 신갈 → 기흥 → ...) 
+   1행 (top: 114px): 왕십리 → ... → 보정
+   곡선 (5좌표): 보정 → 구성
+   2행 (top: 188px): 구성 → 신갈 → ... → 달월
+   곡선 (5좌표): 달월 → 월곶
+   3행 (top: 270px): 월곶 → 소래포구 → ... → 인천 (종점)
    ========================================================================
 */
 
 @keyframes trainRoute {
     /* ===== 1행: 왕십리 → 보정 (오른쪽, top=114px) ===== */
+
+    /* 왕십리 */
+    0% { left: 116px; top: 114px; transform: scaleX(1); opacity: 1; }
+    0.7% { left: 116px; top: 114px; transform: scaleX(1); opacity: 1; }
+
+    /* 서울숲 */
+    1.4% { left: 145px; top: 114px; transform: scaleX(1); opacity: 1; }
+    2.1% { left: 145px; top: 114px; transform: scaleX(1); opacity: 1; }
+
+    /* 압구정로데오 */
+    2.8% { left: 170.5px; top: 114px; transform: scaleX(1); opacity: 1; }
+    3.5% { left: 170.5px; top: 114px; transform: scaleX(1); opacity: 1; }
+
+    /* 강남구청 */
+    4.2% { left: 196px; top: 114px; transform: scaleX(1); opacity: 1; }
+    4.9% { left: 196px; top: 114px; transform: scaleX(1); opacity: 1; }
+
+    /* 선정릉 */
+    5.6% { left: 221.5px; top: 114px; transform: scaleX(1); opacity: 1; }
+    6.3% { left: 221.5px; top: 114px; transform: scaleX(1); opacity: 1; }
+
+    /* 선릉 */
+    7% { left: 247px; top: 114px; transform: scaleX(1); opacity: 1; }
+    7.7% { left: 247px; top: 114px; transform: scaleX(1); opacity: 1; }
+
+    /* 한티 */
+    8.4% { left: 272.5px; top: 114px; transform: scaleX(1); opacity: 1; }
+    9.1% { left: 272.5px; top: 114px; transform: scaleX(1); opacity: 1; }
+
+    /* 도곡 */
+    9.8% { left: 298px; top: 114px; transform: scaleX(1); opacity: 1; }
+    10.5% { left: 298px; top: 114px; transform: scaleX(1); opacity: 1; }
+
+    /* 구룡 */
+    11.2% { left: 323.5px; top: 114px; transform: scaleX(1); opacity: 1; }
+    11.9% { left: 323.5px; top: 114px; transform: scaleX(1); opacity: 1; }
+
+    /* 개포동 */
+    12.6% { left: 349px; top: 114px; transform: scaleX(1); opacity: 1; }
+    13.3% { left: 349px; top: 114px; transform: scaleX(1); opacity: 1; }
+
+    /* 대모산입구 */
+    14% { left: 374.5px; top: 114px; transform: scaleX(1); opacity: 1; }
+    14.7% { left: 374.5px; top: 114px; transform: scaleX(1); opacity: 1; }
+
+    /* 수서 */
+    15.4% { left: 400px; top: 114px; transform: scaleX(1); opacity: 1; }
+    16.1% { left: 400px; top: 114px; transform: scaleX(1); opacity: 1; }
+
+    /* 복정 */
+    16.8% { left: 425.5px; top: 114px; transform: scaleX(1); opacity: 1; }
+    17.5% { left: 425.5px; top: 114px; transform: scaleX(1); opacity: 1; }
+
+    /* 가천대 */
+    18.2% { left: 451px; top: 114px; transform: scaleX(1); opacity: 1; }
+    18.9% { left: 451px; top: 114px; transform: scaleX(1); opacity: 1; }
+
+    /* 태평 */
+    19.6% { left: 476.5px; top: 114px; transform: scaleX(1); opacity: 1; }
+    20.3% { left: 476.5px; top: 114px; transform: scaleX(1); opacity: 1; }
+
+    /* 모란 */
+    21% { left: 502px; top: 114px; transform: scaleX(1); opacity: 1; }
+    21.7% { left: 502px; top: 114px; transform: scaleX(1); opacity: 1; }
+
+    /* 야탑 */
+    22.4% { left: 527.5px; top: 114px; transform: scaleX(1); opacity: 1; }
+    23.1% { left: 527.5px; top: 114px; transform: scaleX(1); opacity: 1; }
+
+    /* 이매 */
+    23.8% { left: 553px; top: 114px; transform: scaleX(1); opacity: 1; }
+    24.5% { left: 553px; top: 114px; transform: scaleX(1); opacity: 1; }
+
+    /* 서현 */
+    25.2% { left: 578.5px; top: 114px; transform: scaleX(1); opacity: 1; }
+    25.9% { left: 578.5px; top: 114px; transform: scaleX(1); opacity: 1; }
+
+    /* 수내 */
+    26.6% { left: 604px; top: 114px; transform: scaleX(1); opacity: 1; }
+    27.3% { left: 604px; top: 114px; transform: scaleX(1); opacity: 1; }
+
+    /* 정자 */
+    28% { left: 629.5px; top: 114px; transform: scaleX(1); opacity: 1; }
+    28.7% { left: 629.5px; top: 114px; transform: scaleX(1); opacity: 1; }
+
+    /* 미금 */
+    29.4% { left: 655px; top: 114px; transform: scaleX(1); opacity: 1; }
+    30.1% { left: 655px; top: 114px; transform: scaleX(1); opacity: 1; }
+
+    /* 오리 */
+    30.8% { left: 680.5px; top: 114px; transform: scaleX(1); opacity: 1; }
+    31.5% { left: 680.5px; top: 114px; transform: scaleX(1); opacity: 1; }
+
+    /* 죽전 */
+    32.2% { left: 706px; top: 114px; transform: scaleX(1); opacity: 1; }
+    32.9% { left: 706px; top: 114px; transform: scaleX(1); opacity: 1; }
+
+    /* 보정 (1행 끝) */
+    33.6% { left: 731.5px; top: 114px; transform: scaleX(1); opacity: 1; }
+    34.3% { left: 731.5px; top: 114px; transform: scaleX(1); opacity: 1; }
     
-    /* 왕십리 - left: 116px (고정) */
-    0% { left: 116px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    0.7% { left: 116px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    
-    /* 서울숲 - left: 145px (고정) */
-    1.4% { left: 145px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    2.1% { left: 145px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    
-    /* 압구정로데오 - left: 170.5px */
-    2.8% { left: 170.5px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    3.5% { left: 170.5px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    
-    /* 강남구청 - left: 196px */
-    4.2% { left: 196px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    4.9% { left: 196px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    
-    /* 선정릉 - left: 221.5px */
-    5.6% { left: 221.5px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    6.3% { left: 221.5px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    
-    /* 선릉 - left: 247px */
-    7% { left: 247px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    7.7% { left: 247px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    
-    /* 한티 - left: 272.5px */
-    8.4% { left: 272.5px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    9.1% { left: 272.5px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    
-    /* 도곡 - left: 298px */
-    9.8% { left: 298px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    10.5% { left: 298px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    
-    /* 구룡 - left: 323.5px */
-    11.2% { left: 323.5px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    11.9% { left: 323.5px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    
-    /* 개포동 - left: 349px */
-    12.6% { left: 349px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    13.3% { left: 349px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    
-    /* 대모산입구 - left: 374.5px */
-    14% { left: 374.5px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    14.7% { left: 374.5px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    
-    /* 수서 - left: 400px */
-    15.4% { left: 400px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    16.1% { left: 400px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    
-    /* 복정 - left: 425.5px */
-    16.8% { left: 425.5px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    17.5% { left: 425.5px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    
-    /* 가천대 - left: 451px */
-    18.2% { left: 451px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    18.9% { left: 451px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    
-    /* 태평 - left: 476.5px */
-    19.6% { left: 476.5px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    20.3% { left: 476.5px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    
-    /* 모란 - left: 502px */
-    21% { left: 502px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    21.7% { left: 502px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    
-    /* 야탑 - left: 527.5px */
-    22.4% { left: 527.5px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    23.1% { left: 527.5px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    
-    /* 이매 - left: 553px */
-    23.8% { left: 553px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    24.5% { left: 553px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    
-    /* 서현 - left: 578.5px */
-    25.2% { left: 578.5px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    25.9% { left: 578.5px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    
-    /* 수내 - left: 604px */
-    26.6% { left: 604px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    27.3% { left: 604px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    
-    /* 정자 - left: 629.5px */
-    28% { left: 629.5px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    28.7% { left: 629.5px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    
-    /* 미금 - left: 655px */
-    29.4% { left: 655px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    30.1% { left: 655px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    
-    /* 오리 - left: 680.5px */
-    30.8% { left: 680.5px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    31.5% { left: 680.5px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    
-    /* 죽전 - left: 706px */
-    32.2% { left: 706px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    32.9% { left: 706px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    
-    /* 보정 (1행 끝) - left: 731.5px */
-    33.6% { left: 731.5px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    34.3% { left: 731.5px; top: 114px; transform: scaleX(-1); opacity: 1; }
-    
-    /* ===== 곡선: 보정 → 구성 (2행으로) ===== */
-    35% { left: 750px; top: 150px; transform: scaleX(1) rotate(-90deg); opacity: 1; }
-    
-    /* ===== 2행: 구성 → 신갈 → ... → 달월 (왼쪽) ===== */
+    /* ===== 곡선: 보정 → 구성 (5좌표, 부드러운 회전) ===== */
+    34.5% { left: 745px; top: 120px; transform: scaleX(1) rotate(20deg); opacity: 1; }
+    34.7% { left: 755px; top: 135px; transform: scaleX(1) rotate(45deg); opacity: 1; }
+    34.9% { left: 760px; top: 151px; transform: scaleX(1) rotate(90deg); opacity: 1; }
+    35.1% { left: 755px; top: 167px; transform: scaleX(1) rotate(135deg); opacity: 1; }
+    35.3% { left: 745px; top: 182px; transform: scaleX(1) rotate(160deg); opacity: 1; }
+
+    /* ===== 2행: 구성 → 달월 (왼쪽, top=188px, rotate(180deg)) ===== */
+
     /* 구성 */
-    35.7% { left: 731.5px; top: 180px; transform: scaleX(1); opacity: 1; }
-    36.4% { left: 731.5px; top: 180px; transform: scaleX(1); opacity: 1; }
-    
+    35.7% { left: 731.5px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+    36.4% { left: 731.5px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+
     /* 신갈 */
-    37.1% { left: 706px; top: 180px; transform: scaleX(1); opacity: 1; }
-    37.8% { left: 706px; top: 180px; transform: scaleX(1); opacity: 1; }
-    
+    37.1% { left: 706px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+    37.8% { left: 706px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+
     /* 기흥 */
-    38.5% { left: 680.5px; top: 180px; transform: scaleX(1); opacity: 1; }
-    39.2% { left: 680.5px; top: 180px; transform: scaleX(1); opacity: 1; }
-    
-    /* 청명 */
-    39.9% { left: 655px; top: 180px; transform: scaleX(1); opacity: 1; }
-    40.6% { left: 655px; top: 180px; transform: scaleX(1); opacity: 1; }
-    
-    /* 망포 */
-    41.3% { left: 629.5px; top: 180px; transform: scaleX(1); opacity: 1; }
-    42% { left: 629.5px; top: 180px; transform: scaleX(1); opacity: 1; }
-    
-    /* 수원시청 */
-    42.7% { left: 604px; top: 180px; transform: scaleX(1); opacity: 1; }
-    43.4% { left: 604px; top: 180px; transform: scaleX(1); opacity: 1; }
-    
-    /* 수원 */
-    44.1% { left: 578.5px; top: 180px; transform: scaleX(1); opacity: 1; }
-    44.8% { left: 578.5px; top: 180px; transform: scaleX(1); opacity: 1; }
-    
-    /* 오목천 */
-    45.5% { left: 553px; top: 180px; transform: scaleX(1); opacity: 1; }
-    46.2% { left: 553px; top: 180px; transform: scaleX(1); opacity: 1; }
-    
-    /* 야목 */
-    46.9% { left: 527.5px; top: 180px; transform: scaleX(1); opacity: 1; }
-    47.6% { left: 527.5px; top: 180px; transform: scaleX(1); opacity: 1; }
-    
-    /* 한대앞 */
-    48.3% { left: 502px; top: 180px; transform: scaleX(1); opacity: 1; }
-    49% { left: 502px; top: 180px; transform: scaleX(1); opacity: 1; }
-    
-    /* 고잔 */
-    49.7% { left: 476.5px; top: 180px; transform: scaleX(1); opacity: 1; }
-    50.4% { left: 476.5px; top: 180px; transform: scaleX(1); opacity: 1; }
-    
-    /* 안산 */
-    51.1% { left: 451px; top: 180px; transform: scaleX(1); opacity: 1; }
-    51.8% { left: 451px; top: 180px; transform: scaleX(1); opacity: 1; }
-    
-    /* 정왕 */
-    52.5% { left: 425.5px; top: 180px; transform: scaleX(1); opacity: 1; }
-    53.2% { left: 425.5px; top: 180px; transform: scaleX(1); opacity: 1; }
-    
-    /* 달월 (2행 끝) */
-    53.9% { left: 400px; top: 180px; transform: scaleX(1); opacity: 1; }
-    54.6% { left: 400px; top: 180px; transform: scaleX(1); opacity: 1; }
-    
-    /* ===== 곡선: 달월 → 오이도 (3행으로) ===== */
-    55.3% { left: 120px; top: 200px; transform: scaleX(-1) rotate(-90deg); opacity: 1; }
-    
-    /* ===== 3행: 오이도 → ... → 신갈 (오른쪽) ===== */
-    /* 오이도 */
-    56% { left: 121px; top: 217px; transform: scaleX(-1); opacity: 1; }
-    56.7% { left: 121px; top: 217px; transform: scaleX(-1); opacity: 1; }
-    
-    /* 신길온천 */
-    57.4% { left: 160px; top: 217px; transform: scaleX(-1); opacity: 1; }
-    58.1% { left: 160px; top: 217px; transform: scaleX(-1); opacity: 1; }
-    
-    /* 초지 */
-    58.8% { left: 202px; top: 217px; transform: scaleX(-1); opacity: 1; }
-    59.5% { left: 202px; top: 217px; transform: scaleX(-1); opacity: 1; }
-    
-    /* 중앙 */
-    60.2% { left: 244px; top: 217px; transform: scaleX(-1); opacity: 1; }
-    60.9% { left: 244px; top: 217px; transform: scaleX(-1); opacity: 1; }
-    
-    /* 사리 */
-    61.6% { left: 286px; top: 217px; transform: scaleX(-1); opacity: 1; }
-    62.3% { left: 286px; top: 217px; transform: scaleX(-1); opacity: 1; }
-    
-    /* 어천 */
-    63% { left: 328px; top: 217px; transform: scaleX(-1); opacity: 1; }
-    63.7% { left: 328px; top: 217px; transform: scaleX(-1); opacity: 1; }
-    
-    /* 고색 */
-    64.4% { left: 370px; top: 217px; transform: scaleX(-1); opacity: 1; }
-    65.1% { left: 370px; top: 217px; transform: scaleX(-1); opacity: 1; }
-    
-    /* 매교 */
-    65.8% { left: 407px; top: 217px; transform: scaleX(-1); opacity: 1; }
-    66.5% { left: 407px; top: 217px; transform: scaleX(-1); opacity: 1; }
-    
-    /* 매탄권선 */
-    67.2% { left: 448px; top: 217px; transform: scaleX(-1); opacity: 1; }
-    67.9% { left: 448px; top: 217px; transform: scaleX(-1); opacity: 1; }
-    
-    /* 영통 */
-    68.6% { left: 490px; top: 217px; transform: scaleX(-1); opacity: 1; }
-    69.3% { left: 490px; top: 217px; transform: scaleX(-1); opacity: 1; }
-    
+    38.5% { left: 680.5px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+    39.2% { left: 680.5px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+
     /* 상갈 */
-    70% { left: 530px; top: 217px; transform: scaleX(-1); opacity: 1; }
-    70.7% { left: 530px; top: 217px; transform: scaleX(-1); opacity: 1; }
+    39.9% { left: 655px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+    40.6% { left: 655px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+
+    /* 청명 */
+    41.3% { left: 629.5px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+    42% { left: 629.5px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+
+    /* 영통 */
+    42.7% { left: 604px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+    43.4% { left: 604px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+
+    /* 망포 */
+    44.1% { left: 578.5px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+    44.8% { left: 578.5px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+
+    /* 수원시청 */
+    45.5% { left: 553px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+    46.2% { left: 553px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+
+    /* 매탄권선 */
+    46.9% { left: 527.5px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+    47.6% { left: 527.5px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+
+    /* 수원 */
+    48.3% { left: 502px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+    49% { left: 502px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+
+    /* 매교 */
+    49.7% { left: 476.5px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+    50.4% { left: 476.5px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+
+    /* 오목천 */
+    51.1% { left: 451px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+    51.8% { left: 451px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+
+    /* 고색 */
+    52.5% { left: 425.5px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+    53.2% { left: 425.5px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+
+    /* 어천 */
+    53.9% { left: 400px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+    54.6% { left: 400px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+
+    /* 야목 */
+    55.3% { left: 374.5px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+    56% { left: 374.5px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+
+    /* 사리 */
+    56.7% { left: 349px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+    57.4% { left: 349px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+
+    /* 한대앞 */
+    58.1% { left: 323.5px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+    58.8% { left: 323.5px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+
+    /* 중앙 */
+    59.5% { left: 298px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+    60.2% { left: 298px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+
+    /* 고잔 */
+    60.9% { left: 272.5px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+    61.6% { left: 272.5px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+
+    /* 초지 */
+    62.3% { left: 247px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+    63% { left: 247px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+
+    /* 안산 */
+    63.7% { left: 221.5px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+    64.4% { left: 221.5px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+
+    /* 신길온천 */
+    65.1% { left: 196px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+    65.8% { left: 196px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+
+    /* 정왕 */
+    66.5% { left: 170.5px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+    67.2% { left: 170.5px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+
+    /* 오이도 */
+    67.9% { left: 145px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+    68.6% { left: 145px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+
+    /* 달월 (2행 끝) */
+    69.3% { left: 119.5px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
+    70% { left: 119.5px; top: 188px; transform: scaleX(1) rotate(180deg); opacity: 1; }
     
-    /* 신갈 (3행 끝) */
-    71.4% { left: 569px; top: 217px; transform: scaleX(-1); opacity: 1; }
-    72.1% { left: 569px; top: 217px; transform: scaleX(-1); opacity: 1; }
-    
-    /* ===== 곡선: 오이도 → 소래포구 (4행으로) ===== */
-    72.8% { left: 115px; top: 243px; transform: scaleX(-1) rotate(-90deg); opacity: 1; }
-    
-    /* ===== 4행: 소래포구 → 인천 (오른쪽) ===== */
-    /* 소래포구 */
-    73.5% { left: 135px; top: 268px; transform: scaleX(-1); opacity: 1; }
-    74.2% { left: 135px; top: 268px; transform: scaleX(-1); opacity: 1; }
-    
-    /* 호구포 */
-    74.9% { left: 179px; top: 268px; transform: scaleX(-1); opacity: 1; }
-    75.6% { left: 179px; top: 268px; transform: scaleX(-1); opacity: 1; }
-    
-    /* 원인재 */
-    76.3% { left: 221px; top: 268px; transform: scaleX(-1); opacity: 1; }
-    77% { left: 221px; top: 268px; transform: scaleX(-1); opacity: 1; }
-    
-    /* 송도 */
-    77.7% { left: 263px; top: 268px; transform: scaleX(-1); opacity: 1; }
-    78.4% { left: 263px; top: 268px; transform: scaleX(-1); opacity: 1; }
-    
-    /* 인하대 */
-    79.1% { left: 304px; top: 268px; transform: scaleX(-1); opacity: 1; }
-    79.8% { left: 304px; top: 268px; transform: scaleX(-1); opacity: 1; }
-    
-    /* 신포 */
-    80.5% { left: 344px; top: 268px; transform: scaleX(-1); opacity: 1; }
-    81.2% { left: 344px; top: 268px; transform: scaleX(-1); opacity: 1; }
-    
-    /* 인천 (4행 끝) */
-    81.9% { left: 397px; top: 277px; transform: scaleX(-1); opacity: 1; }
-    82.6% { left: 397px; top: 277px; transform: scaleX(-1); opacity: 1; }
-    
-    /* ===== 5행: 월곶 → 숭의 (오른쪽) ===== */
+    /* ===== 곡선: 달월 → 월곶 (5좌표, 부드러운 회전) ===== */
+    70.2% { left: 105px; top: 196px; transform: scaleX(1) rotate(160deg); opacity: 1; }
+    70.4% { left: 95px; top: 211px; transform: scaleX(1) rotate(135deg); opacity: 1; }
+    70.6% { left: 90px; top: 229px; transform: scaleX(1) rotate(90deg); opacity: 1; }
+    70.8% { left: 95px; top: 247px; transform: scaleX(1) rotate(45deg); opacity: 1; }
+    71% { left: 105px; top: 262px; transform: scaleX(1) rotate(20deg); opacity: 1; }
+
+    /* ===== 3행: 월곶 → 인천 (오른쪽, top=270px) ===== */
+
     /* 월곶 */
-    83.3% { left: 95px; top: 298px; transform: scaleX(-1); opacity: 1; }
-    84% { left: 95px; top: 298px; transform: scaleX(-1); opacity: 1; }
+    71.4% { left: 119.5px; top: 270px; transform: scaleX(1); opacity: 1; }
+    72.1% { left: 119.5px; top: 270px; transform: scaleX(1); opacity: 1; }
     
+    /* 소래포구 */
+    72.8% { left: 145px; top: 270px; transform: scaleX(1); opacity: 1; }
+    73.5% { left: 145px; top: 270px; transform: scaleX(1); opacity: 1; }
+
     /* 인천논현 */
-    84.7% { left: 140px; top: 298px; transform: scaleX(-1); opacity: 1; }
-    85.4% { left: 140px; top: 298px; transform: scaleX(-1); opacity: 1; }
-    
+    74.2% { left: 170.5px; top: 270px; transform: scaleX(1); opacity: 1; }
+    74.9% { left: 170.5px; top: 270px; transform: scaleX(1); opacity: 1; }
+
+    /* 호구포 */
+    75.6% { left: 196px; top: 270px; transform: scaleX(1); opacity: 1; }
+    76.3% { left: 196px; top: 270px; transform: scaleX(1); opacity: 1; }
+
     /* 남동인더스파크 */
-    86.1% { left: 198px; top: 298px; transform: scaleX(-1); opacity: 1; }
-    86.8% { left: 198px; top: 298px; transform: scaleX(-1); opacity: 1; }
-    
+    77% { left: 221.5px; top: 270px; transform: scaleX(1); opacity: 1; }
+    77.7% { left: 221.5px; top: 270px; transform: scaleX(1); opacity: 1; }
+
+    /* 원인재 */
+    78.4% { left: 247px; top: 270px; transform: scaleX(1); opacity: 1; }
+    79.1% { left: 247px; top: 270px; transform: scaleX(1); opacity: 1; }
+
     /* 연수 */
-    87.5% { left: 253px; top: 298px; transform: scaleX(-1); opacity: 1; }
-    88.2% { left: 253px; top: 298px; transform: scaleX(-1); opacity: 1; }
-    
+    79.8% { left: 272.5px; top: 270px; transform: scaleX(1); opacity: 1; }
+    80.5% { left: 272.5px; top: 270px; transform: scaleX(1); opacity: 1; }
+
+    /* 송도 */
+    81.2% { left: 298px; top: 270px; transform: scaleX(1); opacity: 1; }
+    81.9% { left: 298px; top: 270px; transform: scaleX(1); opacity: 1; }
+
+    /* 인하대 */
+    82.6% { left: 323.5px; top: 270px; transform: scaleX(1); opacity: 1; }
+    83.3% { left: 323.5px; top: 270px; transform: scaleX(1); opacity: 1; }
+
+    /* 숭의 */
+    84% { left: 349px; top: 270px; transform: scaleX(1); opacity: 1; }
+    84.7% { left: 349px; top: 270px; transform: scaleX(1); opacity: 1; }
+
+    /* 신포 */
+    85.4% { left: 374.5px; top: 270px; transform: scaleX(1); opacity: 1; }
+    86.1% { left: 374.5px; top: 270px; transform: scaleX(1); opacity: 1; }
+
     /* 학익 */
-    88.9% { left: 298px; top: 298px; transform: scaleX(-1); opacity: 1; }
-    89.6% { left: 298px; top: 298px; transform: scaleX(-1); opacity: 1; }
+    86.8% { left: 400px; top: 270px; transform: scaleX(1); opacity: 1; }
+    87.5% { left: 400px; top: 270px; transform: scaleX(1); opacity: 1; }
+
+    /* 인천 (종점) */
+    88.2% { left: 425.5px; top: 270px; transform: scaleX(1); opacity: 1; }
+    89.6% { left: 425.5px; top: 270px; transform: scaleX(1); opacity: 1; }
     
-    /* 숭의 (종점) */
-    90.3% { left: 337px; top: 298px; transform: scaleX(-1); opacity: 1; }
-    91% { left: 337px; top: 298px; transform: scaleX(-1); opacity: 1; }
-    
-    /* ===== 종점 도착 후 페이드아웃 ===== */
-    91.7% { left: 337px; top: 298px; transform: scaleX(-1); opacity: 0; }
-    
-    /* 투명 상태 유지 */
-    100% { left: 116px; top: 114px; transform: scaleX(-1); opacity: 0; }
+    /* ===== 종점 → 출발점 (숨김 처리) ===== */
+    89.7% { left: 425.5px; top: 270px; transform: scaleX(1); opacity: 0; }
+    99.9% { left: 116px; top: 114px; transform: scaleX(1); opacity: 0; }
+    100% { left: 116px; top: 114px; transform: scaleX(1); opacity: 1; }
+}
+
+/* Info Panel */
+.info-panel {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 1.5rem;
+    width: 200px;
+    backdrop-filter: blur(10px);
+}
+
+.info-panel h3 {
+    font-size: 1rem;
+    color: var(--primary);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-bottom: 1rem;
+}
+
+.info-item:last-child {
+    margin-bottom: 0;
+}
+
+.info-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-value {
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.color-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.color-badge::before {
+    content: '';
+    width: 12px;
+    height: 12px;
+    background: var(--primary);
+    border-radius: 3px;
 }
 
 /* Footer */
 footer {
     background: var(--bg-darker);
-    padding: 1rem;
-    text-align: center;
+    padding: 2rem;
+    margin-top: auto;
+}
+
+.footer-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+}
+
+.footer-section h4 {
+    color: var(--primary);
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+    font-weight: 700;
+}
+
+.footer-section p {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+.footer-bottom {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: space-between;
+    padding-top: 1.5rem;
+    margin-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
     color: var(--text-muted);
     font-size: 0.8rem;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .map-container {
+        flex-direction: column;
+    }
+    
+    .map-image {
+        width: 100%;
+        max-width: 800px;
+    }
+    
+    .info-panel {
+        width: 100%;
+        max-width: 800px;
+    }
+    
+    .footer-content {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+    
+    .footer-bottom {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: center;
+    }
+}
+
+@media (max-width: 768px) {
+    header {
+        padding: 0.75rem 1rem;
+    }
+    
+    nav {
+        display: none;
+    }
+    
+    .map-wrapper {
+        padding: 10px;
+    }
+    
+    .train {
+        width: 25px;
+    }
 }
